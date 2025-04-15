@@ -5,7 +5,7 @@ import seaborn as sns
 import streamlit as st
 import re
 
-csvfile = '/Users/rushil/Step_Count/steps_test.csv.gz'
+csvfile = 'steps_test.csv.gz'
 data = pd.read_csv(csvfile, compression='gzip')
 
 def is_age_in_range(age, age_range):
