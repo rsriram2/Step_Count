@@ -5,7 +5,7 @@ import seaborn as sns
 import streamlit as st
 import re
 
-csvfile = '/Users/rushil/PH_Website/steps_test.csv.gz'
+csvfile = '/Users/rushil/Step_Count/steps_test.csv.gz'
 data = pd.read_csv(csvfile, compression='gzip')
 
 def is_age_in_range(age, age_range):
@@ -20,7 +20,7 @@ def plot_histogram(data, gender, age, user_step_count=None):
     
     subset = data[(data['gender'] == gender) & (data['age_cat'].apply(lambda x: is_age_in_range(age, x)))]
     
-    plt.hist(subset['value'], bins=30, alpha=0.5, density=True)
+    sns.kdeplot(subset['value'], fill=True, alpha=0.5, label=f'{gender} Density')
     
     if user_step_count is not None:
         quantile = subset[subset['value'] <= user_step_count]['q'].max()
