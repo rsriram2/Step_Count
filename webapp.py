@@ -8,7 +8,7 @@ import re
 csvfile = 'steps_test.csv.gz'
 data = pd.read_csv(csvfile, compression='gzip')
 
-data['age_cat_display'] = data['age_cat'].str.extract(r'\[(\d+),(\d+)\)').apply(lambda x: f"{x[0]}-{x[1]}", axis=1)
+data['age_cat_display'] = data['age_cat'].str.extract(r'\[(\d+),(\d+)\)').apply(lambda x: f"{x[0]}-{int(x[1]) - 1}", axis=1)
 
 def plot_histogram(data, gender, age_range, user_step_count=None):
     plt.figure(figsize=(8, 6))
@@ -25,7 +25,7 @@ def plot_histogram(data, gender, age_range, user_step_count=None):
     
     if user_step_count is not None:
         quantile = subset[subset['value'] <= user_step_count]['q'].max()
-        plt.axvline(user_step_count, color='r', linestyle='dashed', linewidth=2, label=f'Your Step Count (Quantile: {quantile:.2f})')
+        plt.axvline(user_step_count, color='r', linestyle='dashed', linewidth=2, label=f'Your Step Count (Percentile: {quantile * 100:.2f}%)')
     
     plt.xlim(0, max(data['value'].max(), 10000))
     plt.ylim(0, 0.0002)
@@ -45,15 +45,17 @@ gender = st.selectbox(
 
 age_ranges_display = sorted(data['age_cat_display'].unique())
 
-age_range = st.selectbox("Select your age range", options=age_ranges_display)
-
-user_step_count = st.number_input("Enter your step count", min_value=0)
+default_age_group = "20-30" if "20-30" in age_ranges_display else age_ranges_display[0]
+age_range = st.selectbox("Select your age range", options=age_ranges_display, index=age_ranges_display.index(default_age_group))
 
 original_age_range = data[data['age_cat_display'] == age_range]['age_cat'].iloc[0]
 if gender == "Overall":
     subset = data[data['age_cat'] == original_age_range]
 else:
     subset = data[(data['gender'] == gender) & (data['age_cat'] == original_age_range)]
+
+median_step_count = subset['value'].median()
+user_step_count = st.number_input("Enter your step count", min_value=0, value=int(median_step_count), step=500)
 
 st.markdown(
     f"<h3 style='text-align: center; white-space: nowrap;'>Step Count Distribution for {gender} (Age Range {age_range})</h3>",
