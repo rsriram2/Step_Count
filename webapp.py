@@ -36,7 +36,7 @@ def plot_kde_plotly(data, gender, age_range, user_step_count=None):
         mode='lines',
         fill='tozeroy',
         line=dict(color='steelblue'),
-        name=f"{gender} KDE",
+        name=f"{gender} Distribution",
         hovertemplate="Step Count: %{x}<br>Density: %{y:.6f}<extra></extra>" 
     ))
 
