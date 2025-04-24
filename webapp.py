@@ -76,8 +76,8 @@ def plot_kde_plotly(data, gender, age_range, user_step_count=None):
         margin=dict(l=30, r=30, t=10, b=40),
         xaxis_title="Step Count",
         yaxis_title="Density",
-        xaxis_title_font=dict(size=14, color='white'),
-        yaxis_title_font=dict(size=14, color='white'),
+        xaxis_title_font=dict(size=14, color='white', family='Arial Black'),
+        yaxis_title_font=dict(size=14, color='white', family='Arial Black'),
         title_x=0.5,
         legend=dict(
             x=0.75, y=0.95,
