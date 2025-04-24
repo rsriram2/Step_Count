@@ -30,6 +30,9 @@ st.markdown("""
     </h1>
 """, unsafe_allow_html=True)
 
+st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
+
+
 # Load data
 csvfile = 'steps_test.csv.gz'
 data = pd.read_csv(csvfile, compression='gzip')
