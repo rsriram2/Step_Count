@@ -108,7 +108,7 @@ with left_col:
     original_age_range = data[data['age_cat_display'] == age_range]['age_cat'].iloc[0]
     subset = data[data['age_cat'] == original_age_range] if gender == "Overall" else data[(data['gender'] == gender) & (data['age_cat'] == original_age_range)]
     median_step_count = subset['value'].median()
-    user_step_count = st.number_input("Step Count", min_value=0, value=int(median_step_count), step=500)
+    user_step_count = st.number_input("Step Count", min_value=0, value=int(round(median_step_count, -3)), step=500)
 
     if user_step_count:
         quantile = subset[subset['value'] <= user_step_count]['q'].max()
