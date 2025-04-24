@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from scipy.stats import gaussian_kde
 
 # Config page
-st.set_page_config(page_title="Step Count Distribution", layout="wide", theme={"base": "dark"})
+st.set_page_config(page_title="Step Count Distribution", layout="wide")
 
 # Custom dark mode CSS
 st.markdown("""
