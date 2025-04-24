@@ -119,18 +119,30 @@ with left_col:
             steps_to_95th = round(max(0, subset[subset['q'] >= 0.95]['value'].min() - user_step_count))
             steps_to_99th = round(max(0, subset[subset['q'] >= 0.99]['value'].min() - user_step_count))
 
-            st.markdown(f"""
-            <div style="background-color: rgba(70, 130, 180, 0.3); padding:20px; border-radius:10px; margin-top:20px;">
-                <h4 style="color:#ffffff;"> Based on your input:</h4>
-                <p style="color:#d1d5db; font-size:16px; margin-bottom: 10px;">
-                    You are in the <strong style="color:#60a5fa;">{percentile:.2f}th percentile</strong>.
-                </p>
+            # Construct percentile insights conditionally
+            insight_lines = []
+
+            if percentile < 90:
+                insight_lines.append(f"<li> You need <strong><u>{steps_to_90th}</u></strong> more steps to reach the <strong><u>90th</u></strong> percentile.</li>")
+            if percentile < 95:
+                insight_lines.append(f"<li> You need <strong><u>{steps_to_95th}</u></strong> more steps to reach the <strong><u>95th</u></strong> percentile.</li>")
+            if percentile < 99:
+                insight_lines.append(f"<li> You need <strong><u>{steps_to_99th}</u></strong> more steps to reach the <strong><u>99th</u></strong> percentile.</li>")                
+            # Build HTML content
+            ul_block = f"""
                 <ul style="color:#d1d5db; font-size:15px; line-height:1.6;">
-                    <li> You need <strong><u>{steps_to_90th}</u></strong> more steps to reach the <strong><u>90th</u></strong> percentile.</li>
-                    <li> You need <strong><u>{steps_to_95th}</u></strong> more steps to reach the <strong><u>95th</u></strong> percentile.</li>
-                    <li> You need <strong><u>{steps_to_99th}</u></strong> more steps to reach the <strong><u>99th</u></strong> percentile.</li>
+                    {''.join(insight_lines)}
                 </ul>
-            </div>
+            """ if insight_lines else ""  
+            
+            st.markdown(f"""
+                <div style="background-color: rgba(70, 130, 180, 0.3); padding:20px; border-radius:10px; margin-top:20px;">
+                    <h4 style="color:#ffffff;"> Based on your information:</h4>
+                    <p style="color:#d1d5db; font-size:16px; margin-bottom: 10px;">
+                        You are in the <strong style="color:#60a5fa;">{percentile:.2f}th percentile</strong>.
+                    </p>
+                    {ul_block}
+                </div>
             """, unsafe_allow_html=True)
 
 with right_col:
