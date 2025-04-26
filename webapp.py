@@ -6,6 +6,7 @@ import streamlit as st
 import re
 import plotly.graph_objects as go
 from scipy.stats import gaussian_kde
+from PIL import Image, ImageOps
 
 # Config page
 st.set_page_config(page_title="Step Count Distribution", layout="wide")
@@ -33,122 +34,177 @@ st.markdown("""
 st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
 
 
-# Load data
-csvfile = 'steps_test.csv.gz'
-data = pd.read_csv(csvfile, compression='gzip')
 
-# Reformat age category
-data['age_cat_display'] = data['age_cat'].str.extract(r'\[(\d+),(\d+)\)').apply(lambda x: f"{x[0]}-{int(x[1]) - 1}", axis=1)
+tab1, tab2 = st.tabs(["Step Count Distribution", "About Us"])
 
-# KDE plot
-def plot_kde_plotly(data, gender, age_range, user_step_count=None):
-    original_age_range = data[data['age_cat_display'] == age_range]['age_cat'].iloc[0]
-    subset = data if gender == "Overall" else data[data['gender'] == gender]
-    subset = subset[subset['age_cat'] == original_age_range]
-    
-    values = subset['value'].dropna()
-    kde = gaussian_kde(values)
-    x_range = np.linspace(0, max(values.max(), 35000), 500)
-    y_range = kde(x_range)
+with tab1:
+    # Load data
+    csvfile = 'steps_test.csv.gz'
+    data = pd.read_csv(csvfile, compression='gzip')
 
-    fig = go.Figure()
+    # Reformat age category
+    data['age_cat_display'] = data['age_cat'].str.extract(r'\[(\d+),(\d+)\)').apply(lambda x: f"{x[0]}-{int(x[1]) - 1}", axis=1)
 
-    fig.add_trace(go.Scatter(
-        x=x_range, y=y_range,
-        mode='lines',
-        fill='tozeroy',
-        line=dict(color='steelblue'),
-        name=f"{gender} Distribution",
-        hovertemplate="Step Count: %{x}<br>Density: %{y:.6f}<extra></extra>" 
-    ))
+    # KDE plot
+    def plot_kde_plotly(data, gender, age_range, user_step_count=None):
+        original_age_range = data[data['age_cat_display'] == age_range]['age_cat'].iloc[0]
+        subset = data if gender == "Overall" else data[data['gender'] == gender]
+        subset = subset[subset['age_cat'] == original_age_range]
+        
+        values = subset['value'].dropna()
+        kde = gaussian_kde(values)
+        x_range = np.linspace(0, max(values.max(), 35000), 500)
+        y_range = kde(x_range)
 
-    if user_step_count is not None:
-        quantile = subset[subset['value'] <= user_step_count]['q'].max()
+        fig = go.Figure()
+
         fig.add_trace(go.Scatter(
-            x=[user_step_count, user_step_count],
-            y=[0, max(y_range)],
+            x=x_range, y=y_range,
             mode='lines',
-            line=dict(color='crimson', dash='dash'),
-            name=f"Your Step Count ({quantile * 100:.2f}%)",
-            hovertemplate="Your Step Count: %{x}<extra></extra>"
+            fill='tozeroy',
+            line=dict(color='steelblue'),
+            name=f"{gender} Distribution",
+            hovertemplate="Step Count: %{x}<br>Density: %{y:.6f}<extra></extra>" 
         ))
 
-    fig.update_layout(
-        title_text="",
-        template="plotly_dark",
-        margin=dict(l=30, r=30, t=10, b=40),
-        xaxis_title="Step Count",
-        yaxis_title="Density",
-        xaxis_title_font=dict(size=14, color='white', family='Arial Black'),
-        yaxis_title_font=dict(size=14, color='white', family='Arial Black'),
-        title_x=0.5,
-        legend=dict(
-            x=0.75, y=0.95,
-            bgcolor="rgba(0,0,0,0)",
-            bordercolor="rgba(255,255,255,0.2)",
-            borderwidth=1,
-            font=dict(size=13, color="white")            
+        if user_step_count is not None:
+            quantile = subset[subset['value'] <= user_step_count]['q'].max()
+            fig.add_trace(go.Scatter(
+                x=[user_step_count, user_step_count],
+                y=[0, max(y_range)],
+                mode='lines',
+                line=dict(color='crimson', dash='dash'),
+                name=f"Your Step Count ({quantile * 100:.2f}%)",
+                hovertemplate="Your Step Count: %{x}<extra></extra>"
+            ))
+
+        fig.update_layout(
+            title_text="",
+            template="plotly_dark",
+            margin=dict(l=30, r=30, t=10, b=40),
+            xaxis_title="Step Count",
+            yaxis_title="Density",
+            xaxis_title_font=dict(size=14, color='white', family='Arial Black'),
+            yaxis_title_font=dict(size=14, color='white', family='Arial Black'),
+            title_x=0.5,
+            legend=dict(
+                x=0.75, y=0.95,
+                bgcolor="rgba(0,0,0,0)",
+                bordercolor="rgba(255,255,255,0.2)",
+                borderwidth=1,
+                font=dict(size=13, color="white")            
+            )
         )
+        fig.update_yaxes(tickformat=".6f")
+        fig.update_xaxes(gridcolor="rgba(255,255,255,0.1)", tickformat=".0f")
+        st.plotly_chart(fig, use_container_width=True)
+
+    # UI layout
+    age_ranges_display = sorted(data['age_cat_display'].unique())
+    default_age_group = "20-29" if "20-29" in age_ranges_display else age_ranges_display[0]
+
+    left_col, spacer, right_col = st.columns([2, 0.3, 3])
+
+    with left_col:
+        st.subheader("Your Information")
+        gender = st.selectbox("Gender", ["Overall", "Male", "Female"])
+        age_range = st.selectbox("Age Range", options=age_ranges_display, index=age_ranges_display.index(default_age_group))
+        
+        original_age_range = data[data['age_cat_display'] == age_range]['age_cat'].iloc[0]
+        subset = data[data['age_cat'] == original_age_range] if gender == "Overall" else data[(data['gender'] == gender) & (data['age_cat'] == original_age_range)]
+        median_step_count = subset['value'].median()
+        user_step_count = st.number_input("Step Count", min_value=0, value=int(round(median_step_count, -3)), step=500)
+
+        if user_step_count:
+            quantile = subset[subset['value'] <= user_step_count]['q'].max()
+            if pd.isna(quantile):
+                st.write("### Your step count is below the threshold for this demographic.")
+            else:
+                percentile = round(quantile * 100, 2)
+                steps_to_90th = round(max(0, subset[subset['q'] >= 0.9]['value'].min() - user_step_count))
+                steps_to_95th = round(max(0, subset[subset['q'] >= 0.95]['value'].min() - user_step_count))
+                steps_to_99th = round(max(0, subset[subset['q'] >= 0.99]['value'].min() - user_step_count))
+
+                insight_lines = []
+                if percentile < 90:
+                    insight_lines.append(f"<li> You need <strong><u>{steps_to_90th}</u></strong> more steps to reach the <strong><u>90th</u></strong> percentile.</li>")
+                if percentile < 95:
+                    insight_lines.append(f"<li> You need <strong><u>{steps_to_95th}</u></strong> more steps to reach the <strong><u>95th</u></strong> percentile.</li>")
+                if percentile < 99:
+                    insight_lines.append(f"<li> You need <strong><u>{steps_to_99th}</u></strong> more steps to reach the <strong><u>99th</u></strong> percentile.</li>")
+                
+                ul_block = f"""
+                    <ul style="color:#e5e7eb; font-size:15px; line-height:1.6;">
+                        {''.join(insight_lines)}
+                    </ul>
+                """ if insight_lines else ""  
+                
+                st.markdown(f"""
+                    <div style="background-color: #1f2937; padding:20px; border-radius:10px; margin-top:20px;">
+                        <h4 style="color:#ffffff;"> Based on your information:</h4>
+                        <p style="color:#93c5fd; font-size:16px; margin-bottom: 10px;">
+                            You are in the <strong style="color:#60a5fa;">{percentile:.2f}th percentile</strong>.
+                        </p>
+                        {ul_block}
+                    </div>
+                """, unsafe_allow_html=True)
+
+    with right_col:
+        st.markdown(
+            f"<div style='text-align: center; font-size: 24px; font-weight: bold; margin-top: 4px; color: white;'>"
+            f"Step Count Distribution: {gender} (Age {age_range})"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+        plot_kde_plotly(data, gender, age_range, user_step_count)
+
+def load_square_top(path: str, size: int = 200) -> Image.Image:
+    """
+    Crop a square of side `min(w,h)` from the image,
+    anchored at the top, then resize to (size, size).
+    """
+    img = Image.open(path)
+    # ImageOps.fit will crop and then resize
+    return ImageOps.fit(
+        img,
+        (size, size),
+        method=Image.BICUBIC,
+        centering=(0.5, 0.0)   # (x-centering, y-centering)
     )
-    fig.update_yaxes(tickformat=".6f")
-    fig.update_xaxes(gridcolor="rgba(255,255,255,0.1)", tickformat=".0f")
-    st.plotly_chart(fig, use_container_width=True)
+with tab2:
+    # 1) Left-aligned header & description
+    st.header("About Us")
+    st.write(
+        "Welcome to the Step Count Distribution App! This app helps you visualize "
+        "step count distributions based on demographic data. Use the controls on the "
+        "main page to explore the data and gain insights."
+    )
 
-# UI layout
-age_ranges_display = sorted(data['age_cat_display'].unique())
-default_age_group = "20-29" if "20-29" in age_ranges_display else age_ranges_display[0]
+    # 2) Centered “Meet the Team” title
+    st.markdown('<h2 style="text-align:center">Meet the Team</h2>', unsafe_allow_html=True)
 
-left_col, spacer, right_col = st.columns([2, 0.3, 3])
+    # 3) Five-column layout to truly center the three pics
+    spacer_l, col1, col2, col3, spacer_r = st.columns([1.8, 3, 3, 3, 1])
 
-with left_col:
-    st.subheader("Your Information")
-    gender = st.selectbox("Gender", ["Overall", "Male", "Female"])
-    age_range = st.selectbox("Age Range", options=age_ranges_display, index=age_ranges_display.index(default_age_group))
-    
-    original_age_range = data[data['age_cat_display'] == age_range]['age_cat'].iloc[0]
-    subset = data[data['age_cat'] == original_age_range] if gender == "Overall" else data[(data['gender'] == gender) & (data['age_cat'] == original_age_range)]
-    median_step_count = subset['value'].median()
-    user_step_count = st.number_input("Step Count", min_value=0, value=int(round(median_step_count, -3)), step=500)
+    # load & square-crop as before
+    img1 = load_square_top("/Users/rushil/Downloads/professional_pic.jpeg", 200)
+    img2 = load_square_top("/Users/rushil/Downloads/john_headshot.jpeg",    200)
+    img3 = load_square_top("/Users/rushil/Downloads/professional_pic.jpeg", 200)
 
-    if user_step_count:
-        quantile = subset[subset['value'] <= user_step_count]['q'].max()
-        if pd.isna(quantile):
-            st.write("### Your step count is below the threshold for this demographic.")
-        else:
-            percentile = round(quantile * 100, 2)
-            steps_to_90th = round(max(0, subset[subset['q'] >= 0.9]['value'].min() - user_step_count))
-            steps_to_95th = round(max(0, subset[subset['q'] >= 0.95]['value'].min() - user_step_count))
-            steps_to_99th = round(max(0, subset[subset['q'] >= 0.99]['value'].min() - user_step_count))
+    with col1:
+        st.image(img1, width=200,
+                 caption="Rushil: Data Scientist specializing in visualization and analytics.")
+    with col2:
+        st.image(img2, width=200,
+                 caption="Team Member 2: Expert in backend development and data engineering.")
+    with col3:
+        st.image(img3, width=200,
+                 caption="Team Member 3: Focuses on statistical modeling and predictive analytics.")
 
-            insight_lines = []
-            if percentile < 90:
-                insight_lines.append(f"<li> You need <strong><u>{steps_to_90th}</u></strong> more steps to reach the <strong><u>90th</u></strong> percentile.</li>")
-            if percentile < 95:
-                insight_lines.append(f"<li> You need <strong><u>{steps_to_95th}</u></strong> more steps to reach the <strong><u>95th</u></strong> percentile.</li>")
-            if percentile < 99:
-                insight_lines.append(f"<li> You need <strong><u>{steps_to_99th}</u></strong> more steps to reach the <strong><u>99th</u></strong> percentile.</li>")
-            
-            ul_block = f"""
-                <ul style="color:#e5e7eb; font-size:15px; line-height:1.6;">
-                    {''.join(insight_lines)}
-                </ul>
-            """ if insight_lines else ""  
-            
-            st.markdown(f"""
-                <div style="background-color: #1f2937; padding:20px; border-radius:10px; margin-top:20px;">
-                    <h4 style="color:#ffffff;"> Based on your information:</h4>
-                    <p style="color:#93c5fd; font-size:16px; margin-bottom: 10px;">
-                        You are in the <strong style="color:#60a5fa;">{percentile:.2f}th percentile</strong>.
-                    </p>
-                    {ul_block}
-                </div>
-            """, unsafe_allow_html=True)
-
-with right_col:
+    # 4) Centered footer line
     st.markdown(
-        f"<div style='text-align: center; font-size: 24px; font-weight: bold; margin-top: 4px; color: white;'>"
-        f"Step Count Distribution: {gender} (Age {age_range})"
-        f"</div>",
+        '<p style="text-align:center">'
+        'We hope you find this tool useful for exploring step count data!'
+        '</p>',
         unsafe_allow_html=True
     )
-    plot_kde_plotly(data, gender, age_range, user_step_count)
