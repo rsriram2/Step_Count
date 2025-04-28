@@ -7,6 +7,8 @@ import re
 import plotly.graph_objects as go
 from scipy.stats import gaussian_kde
 from PIL import Image, ImageOps
+import base64
+
 
 # Config page
 st.set_page_config(page_title="Step Count Distribution", layout="wide")
@@ -158,21 +160,36 @@ with tab1:
         )
         plot_kde_plotly(data, gender, age_range, user_step_count)
 
-def load_square_top(path: str, size: int = 200) -> Image.Image:
+def img_to_b64(path: str) -> str:
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+# helper that returns an HTML “card” with a square-cropped <img> + caption
+def profile_card(img_b64: str, caption_html: str) -> str:
+    return f"""
+    <div style="text-align:center; margin-bottom:2rem;">
+      <div style="display:inline-block; width:200px; text-align:center;">
+        <!-- square container crops via overflow:hidden -->
+        <div style="width:200px; height:200px; overflow:hidden; border-radius:8px;">
+          <img
+            src="data:image/jpeg;base64,{img_b64}"
+            style="
+              width:100%;
+              height:100%;
+              object-fit:cover;
+              object-position:top center;
+              display:block;
+            "
+          />
+        </div>
+        <p style="color:#e5e7eb; margin:0.5rem 0 0 0; line-height:1.3;">
+          {caption_html}
+        </p>
+      </div>
+    </div>
     """
-    Crop a square of side `min(w,h)` from the image,
-    anchored at the top, then resize to (size, size).
-    """
-    img = Image.open(path)
-    # ImageOps.fit will crop and then resize
-    return ImageOps.fit(
-        img,
-        (size, size),
-        method=Image.BICUBIC,
-        centering=(0.5, 0.0)   # (x-centering, y-centering)
-    )
+
 with tab2:
-    # 1) Left-aligned header & description
     st.header("About Us")
     st.write(
         "Welcome to the Step Count Distribution App! This app helps you visualize "
@@ -180,30 +197,33 @@ with tab2:
         "main page to explore the data and gain insights."
     )
 
-    # 2) Centered “Meet the Team” title
-    st.markdown('<h2 style="text-align:center">Meet the Team</h2>', unsafe_allow_html=True)
+    # Encode each headshot
+    b64_1 = img_to_b64("/Users/rushil/Downloads/professional_pic.jpeg")
+    b64_2 = img_to_b64("/Users/rushil/Downloads/john_headshot.jpeg")
+    b64_3 = img_to_b64("/Users/rushil/Downloads/LK_Headshot.JPG")
 
-    # 3) Five-column layout to truly center the three pics
-    spacer_l, col1, col2, col3, spacer_r = st.columns([1.8, 3, 3, 3, 1])
-
-    # load & square-crop as before
-    img1 = load_square_top("/Users/rushil/Downloads/professional_pic.jpeg", 200)
-    img2 = load_square_top("/Users/rushil/Downloads/john_headshot.jpeg",    200)
-    img3 = load_square_top("/Users/rushil/Downloads/professional_pic.jpeg", 200)
-
-    with col1:
-        st.image(img1, width=200,
-                 caption="Rushil: Data Scientist specializing in visualization and analytics.")
-    with col2:
-        st.image(img2, width=200,
-                 caption="Team Member 2: Expert in backend development and data engineering.")
-    with col3:
-        st.image(img3, width=200,
-                 caption="Team Member 3: Focuses on statistical modeling and predictive analytics.")
-
-    # 4) Centered footer line
+    # Create a centered layout for the team cards
     st.markdown(
-        '<p style="text-align:center">'
+        '<h2 style="text-align:center; color:white; margin-bottom:1rem; padding-left:27px;">Meet the Team</h2>',
+        unsafe_allow_html=True
+    )
+
+    # Create a flexbox layout for centering
+    team_cards = f"""
+    <div style="display: flex; justify-content: center; gap: 10rem; flex-wrap: wrap; margin-top: 2rem;">
+        {profile_card(b64_1, 'Rushil Srirambhatla: B.S. in Applied Mathematics & Statistics at Johns Hopkins University | '
+            '<a href="https://github.com/rsriram2" target="_blank" style="color:#3ea6ff;">GitHub</a>')}
+        {profile_card(b64_2, 'John Muschelli: Associate Research Professor at Johns Hopkins Bloomberg School of Public Health')}
+        {profile_card(b64_3, 'Lily Koffman: Biostatistics PhD Candidate at Johns Hopkins Bloomberg School of Public Health | '
+            '<a href="https://lilykoff.com" target="_blank" style="color:#3ea6ff;">Website</a>')}
+    </div>
+    """
+
+    st.markdown(team_cards, unsafe_allow_html=True)
+
+    # Footer full-width below
+    st.markdown(
+        '<p style="text-align:center; color:#e5e7eb; margin-top:2rem;">'
         'We hope you find this tool useful for exploring step count data!'
         '</p>',
         unsafe_allow_html=True
