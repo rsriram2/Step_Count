@@ -50,59 +50,53 @@ with tab1:
         original_age_range = data[data['age_cat_display'] == age_range]['age_cat'].iloc[0]
         subset = data if gender == "Overall" else data[data['gender'] == gender]
         subset = subset[subset['age_cat'] == original_age_range]
+
         values = subset['value'].dropna()
         kde = gaussian_kde(values)
-
-        # 1) Define your x‐axis
         x_range = np.linspace(0, max(values.max(), 35000), 500)
-
-        # 2) Compute the CDF at each x by integrating from 0 to x, then *100 to get percent
-        cdf_percent = np.array([
-            kde.integrate_box_1d(0, xi) for xi in x_range
-        ]) * 100
+        y_range = kde(x_range)
 
         fig = go.Figure()
 
-        # 3) Plot the cumulative percent curve
         fig.add_trace(go.Scatter(
-            x=x_range,
-            y=cdf_percent,
+            x=x_range, y=y_range,
             mode='lines',
             fill='tozeroy',
             line=dict(color='steelblue'),
-            name=f"{gender} Cumulative %", 
-            hovertemplate="Step Count: %{x}<br>Cumulative: %{y:.2f}%<extra></extra>"
+            name=f"{gender} Distribution",
+            hovertemplate="Step Count: %{x}<br>Density: %{y:.6f}<extra></extra>"
         ))
 
         if user_step_count is not None:
-            # quantile (fraction) → percent
-            quantile = subset[subset['value'] <= user_step_count]['q'].max() * 100
+            quantile = subset[subset['value'] <= user_step_count]['q'].max()
             fig.add_trace(go.Scatter(
                 x=[user_step_count, user_step_count],
-                y=[0, quantile],
+                y=[0, max(y_range)],
                 mode='lines',
                 line=dict(color='crimson', dash='dash'),
-                name=f"Your Percentile ({quantile:.2f}%)",
-                hovertemplate="Your Step Count: %{x}<br>Cumulative: %{y:.2f}%<extra></extra>"
+                name=f"Your Step Count ({quantile * 100:.2f}%)",
+                hovertemplate="Your Step Count: %{x}<extra></extra>"
             ))
 
         fig.update_layout(
+            title_text="",
             template="plotly_dark",
             margin=dict(l=30, r=30, t=10, b=40),
             xaxis_title="Step Count",
-            yaxis_title="Cumulative Percent of Population (%)",
+            yaxis_title="Density",
             xaxis_title_font=dict(size=14, color='white', family='Arial Black'),
             yaxis_title_font=dict(size=14, color='white', family='Arial Black'),
+            title_x=0.5,
             legend=dict(
                 x=0.75, y=0.95,
                 bgcolor="rgba(0,0,0,0)",
                 bordercolor="rgba(255,255,255,0.2)",
                 borderwidth=1,
-                font=dict(size=13, color="white")            
+                font=dict(size=13, color="white")
             )
         )
         fig.update_xaxes(gridcolor="rgba(255,255,255,0.1)", tickformat=".0f")
-        fig.update_yaxes(tickformat=".2f")
+        fig.update_yaxes(tickformat=".6f")
         st.plotly_chart(fig, use_container_width=True)
 
     # UI layout
@@ -200,7 +194,7 @@ def img_to_b64(path: str) -> str:
         return base64.b64encode(f.read()).decode()
 
 # helper that returns an HTML “card” with a square-cropped <img> + caption
-def profile_card(img_b64: str, caption_html: str) -> str:
+def profile_card(img_b64: str, caption_html: str, obj_pos: str="50% 20%") -> str:
     return f"""
     <div style="text-align:center; margin-bottom:2rem;">
       <div style="display:inline-block; width:200px; text-align:center;">
@@ -212,7 +206,7 @@ def profile_card(img_b64: str, caption_html: str) -> str:
               width:100%;
               height:100%;
               object-fit:cover;
-              object-position:top center;
+              object-position: {obj_pos};
               display:block;
             "
           />
@@ -261,7 +255,7 @@ with tab2:
     st.divider()
 
     # Encode each headshot
-    b64_1 = img_to_b64("utils/professional_pic.jpeg")
+    b64_1 = img_to_b64("utils/rushil_headshot.png")
     b64_2 = img_to_b64("utils/john_headshot.jpeg")
     b64_3 = img_to_b64("utils/LK_Headshot.JPG")
     b64_4 = img_to_b64("utils/ciprian_headshot.jpg")
@@ -277,10 +271,10 @@ with tab2:
     team_cards = f"""
     <div style="display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; margin-top: 2rem;">
         {profile_card(b64_1, '<strong>Rushil Srirambhatla</strong>: B.S. in Applied Mathematics & Statistics at Johns Hopkins University | '
-            '<a href="https://github.com/rsriram2" target="_blank" style="color:#3ea6ff;">GitHub</a>')}
-        {profile_card(b64_2, '<strong>John Muschelli</strong>: Associate Research Professor at Johns Hopkins Bloomberg School of Public Health')}
+            '<a href="https://github.com/rsriram2" target="_blank" style="color:#3ea6ff;">GitHub</a>', obj_pos="50% 20%")}
+        {profile_card(b64_2, '<strong>John Muschelli</strong>: Associate Research Professor at Johns Hopkins Bloomberg School of Public Health' , obj_pos="50% 80%")}
         {profile_card(b64_3, '<strong>Lily Koffman</strong>: Biostatistics PhD Candidate at Johns Hopkins Bloomberg School of Public Health | '
-            '<a href="https://lilykoff.com" target="_blank" style="color:#3ea6ff;">Website</a>')}
+            '<a href="https://lilykoff.com" target="_blank" style="color:#3ea6ff;">Website</a>', obj_pos="50% 10%")}
         {profile_card(b64_4, '<strong>Ciprian Crainiceanu</strong>: Professor of Biostatistics at Johns Hopkins Bloomberg School of Public Health')}
     
     </div>
