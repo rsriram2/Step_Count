@@ -198,9 +198,9 @@ with tab2:
     )
 
     # Encode each headshot
-    b64_1 = img_to_b64("/Users/rushil/Downloads/professional_pic.jpeg")
-    b64_2 = img_to_b64("/Users/rushil/Downloads/john_headshot.jpeg")
-    b64_3 = img_to_b64("/Users/rushil/Downloads/LK_Headshot.JPG")
+    b64_1 = img_to_b64("utils/professional_pic.jpeg")
+    b64_2 = img_to_b64("utils/john_headshot.jpeg")
+    b64_3 = img_to_b64("utils/LK_Headshot.JPG")
 
     # Create a centered layout for the team cards
     st.markdown(
