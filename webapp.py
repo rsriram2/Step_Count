@@ -41,7 +41,7 @@ tab1, tab2 = st.tabs(["Step Count Distribution", "About Us"])
 
 with tab1:
     # Load data
-    csvfile = 'steps_test.csv.gz'
+    csvfile = 'utils/steps_test.csv.gz'
     data = pd.read_csv(csvfile, compression='gzip')
 
     # Reformat age category
