@@ -145,7 +145,6 @@ with tab1:
         user_step_count = st.number_input(
             "Step Count",
             min_value=0,
-            value=st.session_state.user_step_count,
             step=500,
             key="user_step_count",
             on_change=mark_changed
