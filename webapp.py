@@ -57,25 +57,43 @@ with tab1:
         y_range = kde(x_range)
 
         fig = go.Figure()
+        
+        raw_pct = np.array([
+            subset[subset['value'] <= xi]['q'].max() * 100
+            for xi in x_range
+        ])
+
+        # 2) cap *and* build hover-labels
+        capped = np.minimum(raw_pct, 99)
+        hover_labels = [
+            f"{p:.2f}%" if raw_pct[i] < 100 else "99+%"
+            for i, p in enumerate(capped)
+        ]
 
         fig.add_trace(go.Scatter(
-            x=x_range, y=y_range,
+            x=x_range,
+            y=y_range,
             mode='lines',
             fill='tozeroy',
             line=dict(color='steelblue'),
             name=f"{gender} Distribution",
-            hovertemplate="Step Count: %{x}<br>Density: %{y:.6f}<extra></extra>"
+            text=hover_labels,   # <-- use text instead of customdata
+            hovertemplate=(
+                "Step Count: %{x}<br>"
+                "Percentile: %{text}<extra></extra>"
+            )
         ))
-
+        
         if user_step_count is not None:
-            quantile = subset[subset['value'] <= user_step_count]['q'].max()
+            qt = subset[subset['value'] <= user_step_count]['q'].max() * 100
+            label = f"{qt:.2f}%" if qt < 100 else "99+%"
             fig.add_trace(go.Scatter(
                 x=[user_step_count, user_step_count],
                 y=[0, max(y_range)],
                 mode='lines',
                 line=dict(color='crimson', dash='dash'),
-                name=f"Your Step Count ({quantile * 100:.2f}%)",
-                hovertemplate="Your Step Count: %{x}<extra></extra>"
+                name=f"Your Step Count ({label})",
+                hovertemplate="Step Count: %{x}<br>Percentile: "+label+"<extra></extra>"
             ))
 
         fig.update_layout(
@@ -150,6 +168,10 @@ with tab1:
                 st.write("### Your step count is below the threshold for this demographic.")
             else:
                 percentile = round(quantile * 100, 2)
+                if percentile >= 100:
+                    display_pct = "99+"
+                else:
+                    display_pct = f"{percentile:.2f}th"
                 steps_to_90th = round(max(0, subset[subset['q'] >= 0.9]['value'].min() - user_step_count))
                 steps_to_95th = round(max(0, subset[subset['q'] >= 0.95]['value'].min() - user_step_count))
                 steps_to_99th = round(max(0, subset[subset['q'] >= 0.99]['value'].min() - user_step_count))
@@ -172,7 +194,7 @@ with tab1:
                     <div style="background-color: #1f2937; padding:20px; border-radius:10px; margin-top:20px;">
                         <h4 style="color:#ffffff;"> Based on your information:</h4>
                         <p style="color:#93c5fd; font-size:16px; margin-bottom: 10px;">
-                            You are in the <strong style="color:#60a5fa;">{percentile:.2f}th percentile</strong>.
+                            You are in the <strong style="color:#60a5fa;">{display_pct} percentile</strong>.
                         </p>
                         {ul_block}
                     </div>
