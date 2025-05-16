@@ -282,7 +282,7 @@ with tab2:
             ></iframe>
         </div>
     """
-st.markdown(pdf_display, unsafe_allow_html=True)
+    st.markdown(pdf_display, unsafe_allow_html=True)
 
 with tab3:
     st.markdown(
