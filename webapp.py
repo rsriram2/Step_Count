@@ -55,6 +55,10 @@ with tab1:
         kde = gaussian_kde(values)
         x_range = np.linspace(0, max(values.max(), 35000), 500)
         y_range = kde(x_range)
+        
+        area = np.trapz(y_range, x_range)
+        y_range = y_range * (100 / area)  # Now area under curve = 100
+
 
         fig = go.Figure()
         
