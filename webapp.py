@@ -35,7 +35,7 @@ st.markdown("""
 
 st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["Step Count Distribution", "About Us"])
+tab1, tab2, tab3 = st.tabs(["Step Count Distribution", "Methods", "About Us"])
 
 with tab1:
     # Load data
@@ -261,15 +261,7 @@ with tab2:
         """,
         unsafe_allow_html=True,
     )
-    
-    st.header("About Us")
-    st.info(
-        "Welcome to the Step Count Distribution App! This app helps you visualize "
-        "step count distributions based on demographic data. Use the controls on the "
-        "main page to explore the data and gain insights."
-    )
-    
-    st.divider()
+  
     
     st.header("Methodology")
     st.info(
@@ -278,6 +270,42 @@ with tab2:
         [step-count algorithm](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx) to raw accelerometry data from the National Health and Nutrition Examination Survey (NHANES). Survey weights provided by NHANES were used to adjust estimates to be nationally representative. See more details on the methodology [here](https://pubmed.ncbi.nlm.nih.gov/39589008/). """
     )
     
+    st.divider()
+    pdf_path = "utils/paper.pdf"
+    pdf_display = f"""
+        <iframe
+            src="{pdf_path}"
+            width="100%"
+            height="900px"
+            style="border: none; border-radius: 12px; background: #222;"
+        ></iframe>
+    """
+st.markdown(pdf_display, unsafe_allow_html=True)
+
+with tab3:
+    st.markdown(
+        """
+        <style>
+          .stAlert p {
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            line-height: 1.5 !important;
+            color: white !important;
+          }
+          .stAlert a {
+            color: #3ea6ff !important;      
+          }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    st.header("About Us")
+    st.info(
+        "Welcome to the Step Count Distribution App! This app helps you visualize "
+        "step count distributions based on demographic data. Use the controls on the "
+        "main page to explore the data and gain insights."
+    )
     st.divider()
 
     # Encode each headshot
@@ -296,12 +324,14 @@ with tab2:
     # Create a flexbox layout for centering
     team_cards = f"""
     <div style="display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; margin-top: 2rem;">
-        {profile_card(b64_1, '<strong>Rushil Srirambhatla</strong>: B.S. in Applied Mathematics & Statistics at Johns Hopkins University | '
+        {profile_card(b64_1, '<strong>Rushil Srirambhatla</strong>: B.S. Applied Mathematics & Statistics at Johns Hopkins University | '
             '<a href="https://github.com/rsriram2" target="_blank" style="color:#3ea6ff;">GitHub</a>', obj_pos="50% 20%")}
-        {profile_card(b64_2, '<strong>John Muschelli</strong>: Associate Research Professor at Johns Hopkins Bloomberg School of Public Health' , obj_pos="50% 80%")}
+        {profile_card(b64_2, '<strong>John Muschelli</strong>: Associate Research Professor at Johns Hopkins Bloomberg School of Public Health | ' 
+            '<a href="https://johnmuschelli.com/" target="_blank" style="color:#3ea6ff;">Website</a>', obj_pos="50% 80%")}
         {profile_card(b64_3, '<strong>Lily Koffman</strong>: Biostatistics PhD Candidate at Johns Hopkins Bloomberg School of Public Health | '
             '<a href="https://lilykoff.com" target="_blank" style="color:#3ea6ff;">Website</a>', obj_pos="70% 2%")}
-        {profile_card(b64_4, '<strong>Ciprian Crainiceanu</strong>: Professor of Biostatistics at Johns Hopkins Bloomberg School of Public Health')}
+        {profile_card(b64_4, '<strong>Ciprian Crainiceanu</strong>: Professor of Biostatistics at Johns Hopkins Bloomberg School of Public Health | '
+            '<a href="http://www.ciprianstats.org/home" target="_blank" style="color:#3ea6ff;">Website</a>')}
     
     </div>
     """
