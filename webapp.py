@@ -57,7 +57,7 @@ with tab1:
         y_range = kde(x_range)
         
         area = np.trapz(y_range, x_range)
-        y_range = y_range * (100 / area)  # Now area under curve = 100
+        y_range = y_range * (100 / area)
 
 
         fig = go.Figure()
@@ -105,7 +105,7 @@ with tab1:
             template="plotly_dark",
             margin=dict(l=30, r=30, t=10, b=40),
             xaxis_title="Step Count",
-            yaxis_title="Density",
+            yaxis_title="Percent per unit (area=100)", 
             xaxis_title_font=dict(size=14, color='white', family='Arial Black'),
             yaxis_title_font=dict(size=14, color='white', family='Arial Black'),
             title_x=0.5,
