@@ -267,18 +267,20 @@ with tab2:
     st.info(
         """
         Step count estimates were obtained by applying a machine-learning based 
-        [step-count algorithm](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx) to raw accelerometry data from the National Health and Nutrition Examination Survey (NHANES). Survey weights provided by NHANES were used to adjust estimates to be nationally representative. See more details on the methodology [here](https://pubmed.ncbi.nlm.nih.gov/39589008/). """
+        [step-count algorithm](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx) to raw accelerometry data from the National Health and Nutrition Examination Survey (NHANES). Survey weights provided by NHANES were used to adjust estimates to be nationally representative. See more details on the methodology below. """
     )
     
     st.divider()
-    pdf_path = "utils/paper.pdf"
+    pdf_path = "https://drive.google.com/file/d/1V-rkGjpVFvfDMoVWhiwkAj_RywtHh_28/preview"
     pdf_display = f"""
-        <iframe
-            src="{pdf_path}"
-            width="100%"
-            height="900px"
-            style="border: none; border-radius: 12px; background: #222;"
-        ></iframe>
+        <div style="display: flex; justify-content: center;">
+            <iframe
+                src="{pdf_path}"
+                width="50%"
+                height="900px"
+                style="border: none; border-radius: 12px; background: #222;"
+            ></iframe>
+        </div>
     """
 st.markdown(pdf_display, unsafe_allow_html=True)
 
