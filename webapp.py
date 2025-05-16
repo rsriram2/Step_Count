@@ -118,7 +118,7 @@ with tab1:
             )
         )
         fig.update_xaxes(gridcolor="rgba(255,255,255,0.1)", tickformat=".0f")
-        fig.update_yaxes(tickformat=".6f")
+        fig.update_yaxes(tickformat=".3f")
         st.plotly_chart(fig, use_container_width=True)
 
     # UI layout
