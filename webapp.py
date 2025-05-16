@@ -105,7 +105,7 @@ with tab1:
             template="plotly_dark",
             margin=dict(l=30, r=30, t=10, b=40),
             xaxis_title="Step Count",
-            yaxis_title="Percent per unit (area=100)", 
+            yaxis_title="Percent per step count", 
             xaxis_title_font=dict(size=14, color='white', family='Arial Black'),
             yaxis_title_font=dict(size=14, color='white', family='Arial Black'),
             title_x=0.5,
