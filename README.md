@@ -1,4 +1,4 @@
-# Step\_Count
+# Step_Count
 
 An interactive web application for visualizing and analyzing step-count data across demographic groups.
 
@@ -28,10 +28,10 @@ An interactive web application for visualizing and analyzing step-count data acr
 
 `Step_Count` is a Streamlit-based application designed to:
 
-* Present **interactive visualizations** of daily step-count distributions by demographic factors.
-* Compare groups using **normalized KDE curves** (percent of total steps on the y-axis).
-* Provide a comprehensive **Methods** section embedding the full research paper detailing data sources, preprocessing, and analysis.
-* Showcase the development team via an **About Us** section with member bios and links.
+- Present **interactive visualizations** of daily step-count distributions by demographic factors.
+- Compare groups using **normalized KDE curves** (percent of total steps on the y-axis).
+- Provide a comprehensive **Methods** section embedding the full research paper detailing data sources, preprocessing, and analysis.
+- Showcase the development team via an **About Us** section with member bios and links.
 
 This tool helps researchers and public health practitioners explore activity patterns and demographic disparities in physical activity.
 
@@ -39,58 +39,55 @@ This tool helps researchers and public health practitioners explore activity pat
 
 ## Features
 
-* **Interactive Filters**: Dynamically filter data by age, gender, and other demographic variables.
-* **Distribution Plots**: Histograms and kernel density estimates (KDE) for step counts.
-* **Normalized Curves**: KDE curves normalized to show percent of total steps, facilitating cross-group comparison.
-* **Integrated Documentation**: A dedicated Methods tab with embedded research paper content.
-* **Team Profiles**: About Us page with team roles, photos, and external links.
+- **Interactive Filters:** Dynamically filter data by age, gender, and other demographic variables.
+- **Distribution Plots:** Histograms and kernel density estimates (KDE) for step counts.
+- **Normalized Curves:** KDE curves normalized to show percent of total steps, facilitating cross-group comparison.
+- **Integrated Documentation:** A dedicated Methods tab with embedded research paper content.
+- **Team Profiles:** About Us page with team roles, photos, and external links.
 
 ---
 
 ## Demo
 
-*View the live app:* [Streamlit Cloud Deployment](#)
+*View the live app:* (Deployment link coming soon)
 
 ---
 
 ## Tech Stack
 
-* **Language:** Python 3.8+
-* **Framework:** [Streamlit](https://streamlit.io/)
-* **Data Manipulation:** pandas, numpy
-* **Visualization:** matplotlib / seaborn / plotly (depending on module)
+- **Language:** Python 3.8+
+- **Framework:** [Streamlit](https://streamlit.io/)
+- **Data Manipulation:** pandas, numpy
+- **Visualization:** matplotlib, seaborn, plotly
 
 ---
 
 ## Prerequisites
 
-* Python 3.8 or higher
-* `pip` package manager
+- Python 3.8 or higher
+- `pip` package manager
 
 ---
 
 ## Installation
 
 1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/rsriram2/Step_Count.git
-   cd Step_Count
-   ```
+    ```bash
+    git clone https://github.com/rsriram2/Step_Count.git
+    cd Step_Count
+    ```
 
 2. **Create a virtual environment**
-
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate    # On Windows: venv\Scripts\activate
-   ```
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate    # On Windows: venv\Scripts\activate
+    ```
 
 3. **Install dependencies**
-
-   ```bash
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
+    ```bash
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
 
 ---
 
@@ -102,7 +99,7 @@ Launch the Streamlit application:
 streamlit run webapp.py
 ```
 
-Open `http://localhost:8501` in your browser to explore the dashboard.
+Open [http://localhost:8501](http://localhost:8501) in your browser to explore the dashboard.
 
 ---
 
@@ -123,8 +120,8 @@ Step_Count/
 
 ## Configuration
 
-* \`\`: Customize page title, icon, and theme settings.
-* \`\`: Defines the development container for consistent environment setup.
+- `.streamlit/`: Customize page title, icon, and theme settings.
+- `.devcontainer/`: Defines the development container for consistent environment setup.
 
 ---
 
@@ -132,16 +129,16 @@ Step_Count/
 
 After launching the app:
 
-1. Navigate to **Filters** sidebar to select demographic subsets.
+1. Use the **Filters** sidebar to select demographic subsets.
 2. View **Distribution** and **KDE** plots updating in real time.
-3. Switch to **Methods** tab for detailed documentation and embedded research paper.
-4. Visit **About Us** for team member profiles and contact links.
+3. Switch to the **Methods** tab for detailed documentation and embedded research paper.
+4. Visit the **About Us** tab for team member profiles and contact links.
 
 ---
 
 ## Methods
 
-All methodological details—data description, preprocessing steps, statistical analyses, and validation—are accessible under the **Methods** tab within the app. The embedded paper includes figures, tables, and citations.
+All methodological details—data description, preprocessing steps, statistical analyses, and validation—are accessible under the **Methods** tab within the app. The embedded paper includes figures and tables for deeper insight.
 
 ---
 
@@ -149,20 +146,29 @@ All methodological details—data description, preprocessing steps, statistical 
 
 Meet the team behind this project. Visit the **About Us** tab for:
 
-* **Names & Roles**
-* **Short Bios**
-* **Links**: Personal websites, LinkedIn, GitHub profiles
+- **Names & Roles**
+- **Short Bios**
+- **Links:** Personal websites, LinkedIn, GitHub profiles
 
 ---
 
 ## Contributing
 
-We welcome contributions:
+We welcome contributions!
 
 1. Fork the repository
-2. Create a new branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m "Add new feature"`
-4. Push to the branch: `git push origin feature/my-feature`
+2. Create a new branch:  
+   ```bash
+   git checkout -b feature/my-feature
+   ```
+3. Commit your changes:  
+   ```bash
+   git commit -m "Add new feature"
+   ```
+4. Push to the branch:  
+   ```bash
+   git push origin feature/my-feature
+   ```
 5. Open a Pull Request describing your work
 
 Please adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
@@ -177,7 +183,7 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## Contact
 
-* **Project Lead:** Rushil Srirambhatla ([GitHub](https://github.com/rsriram2))
-* **Email:** [rushil@example.com](mailto:rushil@example.com)
+- **Project Lead:** Rushil Srirambhatla ([GitHub](https://github.com/rsriram2))
+- **Email:** [rushil@example.com](mailto:rushil@example.com)
 
 Feel free to open issues or reach out with questions or suggestions!
