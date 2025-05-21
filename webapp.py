@@ -516,6 +516,7 @@ with tab2:
         plot_multi_algo_kde(
             data, selected_algos, gender, age_range, user_step_count=user_step_count, show_baseline=show_baseline_tab2
         )
+    st.divider()
 
 with tab3:
     st.markdown(
@@ -540,7 +541,9 @@ with tab3:
         """
         Step count estimates were obtained by applying a machine-learning based 
         [step-count algorithm](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx) to raw accelerometry data from the National Health and Nutrition Examination Survey (NHANES).
-        
+        - **Step count algorithm: [OxWearables/stepcount (GitHub)](https://github.com/OxWearables/stepcount)**
+        - **Our analysis code: [lilykoff/nhanes_steps_mortality (GitHub)](https://github.com/lilykoff/nhanes_steps_mortality)**
+        - **Minute-level step count data: [PhysioNet NHANES Dataset](https://physionet.org/content/minute-level-step-count-nhanes/1.0.1/)**
         """
     )
 
@@ -556,7 +559,7 @@ with tab3:
             ></iframe>
         </div>
     """
-    st.markdown(pdf_display, unsafe_allow_html=True)
+    st.markdown(pdf_display, unsafe_allow_html=True)     
 
 # --- TAB 4: About Us ---
 def img_to_b64(path: str) -> str:
