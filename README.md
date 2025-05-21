@@ -153,6 +153,6 @@ Meet the team behind this project. Visit the **About Us** tab for:
 ## Contact
 
 - **Project Lead:** Rushil Srirambhatla ([GitHub](https://github.com/rsriram2))
-- **Email:** [rushil@example.com](mailto:rushil@example.com)
+- **Email:** [rushil@example.com](mailto:rsriram2@jh.edu)
 
 Feel free to open issues or reach out with questions or suggestions!
