@@ -28,6 +28,7 @@ An interactive web application for visualizing and analyzing step-count data acr
 
 - Present **interactive visualizations** of daily step-count distributions by demographic factors.
 - Compare groups using **normalized KDE curves** (percent of total steps on the y-axis).
+- **Estimate survival benefit** for different step counts and demographics, based on published survival models.
 - Provide a comprehensive **Methods** section embedding the full research paper detailing data sources, preprocessing, and analysis.
 - Showcase the development team via an **About Us** section with member bios and links.
 
@@ -40,6 +41,7 @@ This tool helps researchers and public health practitioners explore activity pat
 - **Interactive Filters:** Dynamically filter data by age, gender, and other demographic variables.
 - **Distribution Plots:** Histograms and kernel density estimates (KDE) for step counts.
 - **Normalized Curves:** KDE curves normalized to show percent of total steps, facilitating cross-group comparison.
+- **Survival Probability Estimates:** Quantify estimated improvements in all-cause survival probability for a 500-step increase, stratified by age, gender, and algorithm. (Available for users aged 50+.)
 - **Integrated Documentation:** A dedicated Methods tab with embedded research paper content.
 - **Team Profiles:** About Us page with team roles, photos, and external links.
 
@@ -108,7 +110,7 @@ Step_Count/
 ├── .devcontainer/         # Development container settings for VS Code
 ├── .streamlit/            # Streamlit configuration (theme, page title)
 ├── misc/                  # Static assets (screenshots, logos, sample data)
-├── utils/                 # Helper modules and utility functions
+├── utils/                 # Helper modules and utility functions, data files (including survival improvement data)
 ├── webapp.py              # Main Streamlit application
 ├── requirements.txt       # Python dependencies
 └── README.md              # Project overview and instructions
@@ -129,14 +131,29 @@ After launching the app:
 
 1. Use the **Filters** sidebar to select demographic subsets.
 2. View **Distribution** and **KDE** plots updating in real time.
-3. Switch to the **Methods** tab for detailed documentation and embedded research paper.
-4. Visit the **About Us** tab for team member profiles and contact links.
+3. **Find your percentile and survival probability improvement:**  
+   - Enter your step count and demographics.
+   - If eligible (age ≥ 50, gender specified), view the estimated improvement in all-cause survival probability for a 500-step increase, based on published models.
+4. Switch to the **Methods** tab for detailed documentation and embedded research paper.
+5. Visit the **About Us** tab for team member profiles and contact links.
+
+---
+
+## Survival Estimate Implementation
+
+The app provides estimated improvements in all-cause survival probability for a 500-step increase, stratified by age group, gender, and step count algorithm. These survival estimates are shown for users aged 50 and above with specified gender, based on models from [peer-reviewed studies](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx).
+
+**Implementation details:**
+- Survival improvement data are precomputed and stored in `utils/steps_survival_all_algorithms_inc10.csv.gz`.
+- In the app, after the user enters their demographics and step count, the relevant survival probability change is displayed (if available) in the right panel.
+- The survival panel is shown only for eligible age/gender combinations; otherwise, a notice is shown.
+- Survival estimates are stratified by age brackets (e.g., 50–59, 60–69), gender, and algorithm.
 
 ---
 
 ## Methods
 
-All methodological details—data description, preprocessing steps, statistical analyses, and validation—are accessible under the **Methods** tab within the app. The embedded paper includes figures and tables for deeper insight.
+All methodological details—data description, preprocessing steps, statistical analyses, and validation—are accessible under the **Methods** tab within the app. The embedded paper includes figures and full details.
 
 ---
 
