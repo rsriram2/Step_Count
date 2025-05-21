@@ -84,7 +84,7 @@ with tab1:
             mode='lines',
             fill='tozeroy',
             line=dict(color='#60a5fa'),
-            name=f"{algo} Distribution",
+            name=f"Step Count Distribution",
             text=hover_labels,
             hovertemplate=(
                 "Step Count: %{x}<br>"
@@ -171,7 +171,7 @@ with tab1:
         quantile = rf_subset[rf_subset['value'] <= user_step_count]['q'].max()
         if pd.isna(quantile):
             percentile = None
-            st.write("### Your step count is below the threshold for this demographic (Stepcount SSL).")
+            st.write("### Your step count is below the threshold for this demographic (based on Stepcount SSL).")
         else:
             percentile = round(quantile * 100, 2)
             steps_to_90th = round(max(0, rf_subset[rf_subset['q'] >= 0.9]['value'].min() - user_step_count))
@@ -197,7 +197,7 @@ with tab1:
                 <div style="background-color: #1f2937; padding:20px; border-radius:10px; margin-top:20px;">
                     <h4 style="color:#ffffff;"> Based on your information:</h4>
                     <p style="color:#93c5fd; font-size:16px; margin-bottom: 10px;">
-                        You are in the <strong style="color:#60a5fa;">{display_pct} percentile</strong> (Stepcount SSL).
+                        You are in the <strong style="color:#60a5fa;">{display_pct} percentile</strong> (based on Stepcount SSL).
                     </p>
                     {ul_block}
                 </div>
@@ -247,7 +247,7 @@ def profile_card(img_b64: str, caption_html: str, obj_pos: str="50% 20%") -> str
     """
 
 with tab2:
-    algo_options = sorted(data['name'].unique())
+    algo_options = sorted([n for n in data['name'].unique() if n != "Best guess"])
     default_algos = ["Stepcount RF", "Stepcount SSL"] if all(a in algo_options for a in ["Stepcount RF", "Stepcount SSL"]) else algo_options[:2]
 
     st.subheader("Algorithm Comparison")
