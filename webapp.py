@@ -134,6 +134,7 @@ with tab1:
             value=False,
             help="Overlay a common-sense average step count curve based on published norms."
         )
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)        
         baseline_percentile_message = ""
         if show_baseline:
             baseline_subset = data[(data['name'] == "Best guess") & (data['age_cat_display'] == age_range)]
