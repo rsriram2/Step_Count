@@ -18,9 +18,7 @@ An interactive web application for visualizing and analyzing step-count data acr
 10. [Usage](#usage)
 11. [Methods](#methods)
 12. [About Us](#about-us)
-13. [Contributing](#contributing)
-14. [License](#license)
-15. [Contact](#contact)
+13. [Contact](#contact)
 
 ---
 
@@ -149,35 +147,6 @@ Meet the team behind this project. Visit the **About Us** tab for:
 - **Names & Roles**
 - **Short Bios**
 - **Links:** Personal websites, LinkedIn, GitHub profiles
-
----
-
-## Contributing
-
-We welcome contributions!
-
-1. Fork the repository
-2. Create a new branch:  
-   ```bash
-   git checkout -b feature/my-feature
-   ```
-3. Commit your changes:  
-   ```bash
-   git commit -m "Add new feature"
-   ```
-4. Push to the branch:  
-   ```bash
-   git push origin feature/my-feature
-   ```
-5. Open a Pull Request describing your work
-
-Please adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
-
----
-
-## License
-
-Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ---
 
