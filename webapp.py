@@ -350,17 +350,23 @@ with tab1:
             show_baseline=show_baseline
         )
 
-        # ------- SURVIVAL PROBABILITY IMPROVEMENT PANEL BELOW GRAPH -------
-        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
-        st.markdown("<hr style='border-top: 1px solid #2d3748; margin:16px 0 16px 0;' />", unsafe_allow_html=True)
-        st.markdown(
-            "<div style='font-size:20px; color:white; font-weight:bold; margin-bottom:12px;'>Estimated Survival Improvement</div>",
-            unsafe_allow_html=True
-        )
+        # --- Should we show the survival panel? ---
+        show_survival_panel = True
+        if gender == "Overall":
+            show_survival_panel = False
+        else:
+            try:
+                age_low = int(age_range.split("-")[0])
+                if age_low < 50:
+                    show_survival_panel = False
+            except Exception:
+                show_survival_panel = False
+
         def age_range_to_bracket(age_range):
             """Convert '50-59' to '[50,60)' for DataFrame filtering."""
             start, end = age_range.split('-')
             return f"[{start},{int(end)+1})"
+
         def get_survival_improvement(surv, algo, gender, age_range, user_steps):
             # Round to nearest 10 as per dataset
             step10 = int(10 * round(user_steps / 10))
@@ -381,33 +387,45 @@ with tab1:
                 return None, step10
             return survprob, step10
 
-        print(age_range)
-        survprob, step10 = get_survival_improvement(
-            surv, algo, gender, age_range, user_step_count
-        )
-        print(f"Survival prob: {survprob}, Step10: {step10}")
-        if survprob is not None:
+        if show_survival_panel:
+            st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+            st.markdown("<hr style='border-top: 1px solid #2d3748; margin:16px 0 16px 0;' />", unsafe_allow_html=True)
             st.markdown(
-                f"""
-                <div style="background-color:#1f2937; padding:18px 28px; border-radius:10px;">
-                    <span style="font-size:16px; color:#d1d5db;">
-                        <strong>Estimated improvement in survival probability for a 500-step increase:</strong> 
-                        <span style="color:#4ade80; font-size:20px; font-weight:700;">{survprob*100:.2f}%</span>
-                        <br>
-                        (From {step10:,} steps, using <b>{algo}</b>)
-                    </span>
-                </div>
-                """, unsafe_allow_html=True
+                "<div style='font-size:20px; color:white; font-weight:bold; margin-bottom:12px;'>Estimated Survival Improvement</div>",
+                unsafe_allow_html=True
             )
+            survprob, step10 = get_survival_improvement(
+                surv, algo, gender, age_range, user_step_count
+            )
+            if survprob is not None:
+                st.markdown(
+                    f"""
+                    <div style="background-color:#1f2937; padding:18px 28px; border-radius:10px;">
+                        <span style="font-size:16px; color:#d1d5db;">
+                            <strong>Estimated improvement in survival probability for a 500-step increase:</strong> 
+                            <span style="color:#00c04b; font-size:20px; font-weight:700;">{survprob*100:.2f}%</span>
+                            <br>
+                            (From {step10:,} steps, using <b>{algo}</b>)
+                        </span>
+                    </div>
+                    """, unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    f"""
+                    <div style="background-color:#1f2937; padding:18px 28px; border-radius:10px;">
+                        <span style="font-size:16px; color:#f472b6;">
+                            Survival improvement estimate is not available for your selection (step count range or demographic may be out of bounds).
+                        </span>
+                    </div>
+                    """, unsafe_allow_html=True
+                )
         else:
             st.markdown(
-                f"""
-                <div style="background-color:#1f2937; padding:18px 28px; border-radius:10px;">
-                    <span style="font-size:16px; color:#f472b6;">
-                        Survival improvement estimate is not available for your selection (step count range or demographic may be out of bounds).
-                    </span>
-                </div>
-                """, unsafe_allow_html=True
+                "<div style='color:#60a5fa; background-color:#1f2937; padding:18px 28px; border-radius:10px; margin-top: 16px;'>"
+                "<strong>Survival improvement estimates are available for Males and Females aged 50 and above.</strong>"
+                "</div>",
+                unsafe_allow_html=True
             )
     st.divider()
 
@@ -485,7 +503,6 @@ with tab2:
                 f"</ul></div>"
             )
             st.markdown(percentiles_block, unsafe_allow_html=True)
-        st.info("Survival probability improvements for each algorithm are shown in the Step Count Distribution tab.")
 
     with right_col:
         st.markdown("#### Compare with Step-Detection Algorithms")
@@ -609,6 +626,8 @@ with tab2:
             data, selected_algos, gender, age_range, user_step_count=user_step_count, show_baseline=show_baseline_tab2
         )
     st.divider()
+    st.info("Survival probability improvements for each algorithm are shown in the Step Count Distribution tab.")
+
 
 with tab3:
     st.markdown(
