@@ -127,7 +127,6 @@ with tab1:
         
         st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-
         # Add toggle for Baseline
         show_baseline = st.checkbox(
             "Show Baseline Distribution",
@@ -342,10 +341,59 @@ with tab2:
 
         # Toggle for Baseline
         show_baseline_tab2 = st.checkbox(
-            "Show Baseline (average steps by age group)", value=False,
+            "Show Baseline Distribution", value=False,
             help="Overlay a common-sense average step count curve based on published norms and expert judgment.",
             key="comp_baseline",
         )
+        # --- BEGIN COLOR MAP FOR PERCENTILE TEXT ---
+        color_cycle = [
+            "#60a5fa", "#f59e42", "#10b981", "#e11d48", "#a855f7", "#facc15", "#64748b", "#f472b6"
+        ]
+        color_map = {algo: color_cycle[i % len(color_cycle)] for i, algo in enumerate(selected_algos)}
+        # --- END COLOR MAP FOR PERCENTILE TEXT ---
+
+        if selected_algos and user_step_count is not None:
+            algo_percentile_lines = []
+            if show_baseline_tab2:
+                baseline_subset = data[(data['name'] == "Best guess") & (data['age_cat_display'] == age_range)]
+                if gender != "Overall":
+                    baseline_subset = baseline_subset[baseline_subset['gender'] == gender]
+                baseline_values = baseline_subset['value'].dropna()
+                if len(baseline_values) > 0:
+                    baseline_percentile = 100 * (baseline_values <= user_step_count).sum() / len(baseline_values)
+                    display_baseline_pct = "99+" if baseline_percentile >= 100 else f"{baseline_percentile:.2f}"
+                    baseline_color = "white"
+                    algo_percentile_lines.append(
+                        f"<li><span style='color:{baseline_color};font-weight:bold'>Baseline</span>: "
+                        f"<span style='color:{baseline_color};font-weight:bold'>{display_baseline_pct}%</span></li>"
+                    )
+            for idx, algo in enumerate(selected_algos):
+                algo_subset = data[(data['name'] == algo) & (data['age_cat_display'] == age_range)]
+                if gender != "Overall":
+                    algo_subset = algo_subset[algo_subset['gender'] == gender]
+                algo_values = algo_subset['value'].dropna()
+                if len(algo_values) > 0:
+                    algo_percentile = 100 * (algo_values <= user_step_count).sum() / len(algo_values)
+                    display_pct = "99+" if algo_percentile >= 100 else f"{algo_percentile:.2f}"
+                    color = color_map.get(algo, "#60a5fa")
+                    algo_percentile_lines.append(
+                        f"<li><span style='color:{color};font-weight:bold'>{algo}</span>: "
+                        f"<span style='color:{color};font-weight:bold'>{display_pct}%</span></li>"
+                    )
+                else:
+                    algo_percentile_lines.append(
+                        f"<li><span style='color:#e11d48;font-weight:bold'>{algo}</span>: "
+                        f"<span style='color:#e11d48;'>No data for this selection</span></li>"
+                    )
+            percentiles_block = (
+                f"<div style='background-color:#1f2937;padding:12px 20px; border-radius:10px; margin-bottom:10px; margin-top:-8px;'>"
+                f"<p style='color:white;font-size:15px;font-weight:600;margin-bottom:8px;'>"
+                f"Your percentile in each selected algorithm:</p>"
+                f"<ul style='color:#e5e7eb;font-size:15px;line-height:1.6;margin-bottom:0;padding-left:20px;'>"
+                f"{''.join(algo_percentile_lines)}"
+                f"</ul></div>"
+            )
+            st.markdown(percentiles_block, unsafe_allow_html=True)
 
     with right_col:
         st.markdown("#### Compare with Step-Detection Algorithms")
