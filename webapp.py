@@ -40,14 +40,33 @@ tab1, tab2, tab3, tab4 = st.tabs(["Step Count Distribution", "Algorithm Comparis
 csvfile = 'utils/steps_all_algorithms.csv.gz'
 data = pd.read_csv(csvfile, compression='gzip')
 
+# Load survival improvement data (increments of 10)
+survival_csv = 'utils/steps_survival_all_algorithms_inc10.csv.gz'
+surv = pd.read_csv(survival_csv, compression='gzip')
+
 # Reformat age category
 data['age_cat_display'] = data['age_cat'].str.extract(r'\[(\d+),(\d+)\)').apply(lambda x: f"{x[0]}-{int(x[1]) - 1}", axis=1)
-
+if 'age_cat_display' not in surv.columns:
+    # extract two capture groups; this gives a DataFrame of strings or NaN
+    age_bounds = surv['age'].str.extract(r'(\d+)-(\d+)')
+    # coerce only the non-null entries to int
+    surv['low'] = pd.to_numeric(age_bounds[0], errors='coerce').astype('Int64')
+    surv['high'] = pd.to_numeric(age_bounds[1], errors='coerce').astype('Int64')
+    # build the display string, skipping rows where low/high is null
+    surv['age_cat_display'] = (
+        surv['low'].astype(str)
+        + '-'
+        + (surv['high'] - 1).astype(str)
+    )
+    surv = surv.drop(columns=['low','high'])
 # For dropdowns
 age_ranges_display = sorted(data['age_cat_display'].unique())
 default_age_group = "20-29" if "20-29" in age_ranges_display else age_ranges_display[0]
 
-# --- TAB 1: Step Count Distribution ---
+# For algorithm dropdowns
+algo_options = sorted([a for a in data['name'].unique() if a != "Best guess"])
+default_algo = "Stepcount SSL" if "Stepcount SSL" in algo_options else algo_options[0]
+
 with tab1:
     left_col, spacer, right_col = st.columns([2, 0.3, 3])
 
@@ -56,14 +75,22 @@ with tab1:
         gender = st.selectbox("Gender", ["Overall", "Male", "Female"])
         age_range = st.selectbox("Age Range", options=age_ranges_display, index=age_ranges_display.index(default_age_group))
 
-        # Load subset for default algo
-        rf_subset = data[(data['name'] == "Stepcount SSL") & (data['age_cat_display'] == age_range)]
+        # Algorithm selector
+        algo = st.selectbox(
+            "Algorithm",
+            options=algo_options,
+            index=algo_options.index(default_algo),
+            help="Choose the algorithm used to calculate your step count percentile and survival improvement."
+        )
+
+        # Load subset for selected algo
+        subset = data[(data['name'] == algo) & (data['age_cat_display'] == age_range)]
         if gender != "Overall":
-            rf_subset = rf_subset[rf_subset['gender'] == gender]
-        rf_subset = rf_subset.copy()
+            subset = subset[subset['gender'] == gender]
+        subset = subset.copy()
 
         # Median for pre-filling
-        median_step_count = rf_subset['value'].median()
+        median_step_count = subset['value'].median()
         median_val = int(round(median_step_count, -3)) if not np.isnan(median_step_count) else 0
 
         # Session state initialization
@@ -89,16 +116,16 @@ with tab1:
             on_change=mark_changed
         )
 
-        quantile = rf_subset[rf_subset['value'] <= user_step_count]['q'].max()
+        quantile = subset[subset['value'] <= user_step_count]['q'].max()
         if pd.isna(quantile):
             percentile = None
-            st.write("### Your step count is below the threshold for this demographic (Stepcount SSL).")
+            st.write(f"### Your step count is below the threshold for this demographic ({algo}).")
             steps_to_90th = steps_to_95th = steps_to_99th = None
         else:
             percentile = round(quantile * 100, 2)
-            steps_to_90th = round(max(0, rf_subset[rf_subset['q'] >= 0.9]['value'].min() - user_step_count))
-            steps_to_95th = round(max(0, rf_subset[rf_subset['q'] >= 0.95]['value'].min() - user_step_count))
-            steps_to_99th = round(max(0, rf_subset[rf_subset['q'] >= 0.99]['value'].min() - user_step_count))
+            steps_to_90th = round(max(0, subset[subset['q'] >= 0.9]['value'].min() - user_step_count))
+            steps_to_95th = round(max(0, subset[subset['q'] >= 0.95]['value'].min() - user_step_count))
+            steps_to_99th = round(max(0, subset[subset['q'] >= 0.99]['value'].min() - user_step_count))
 
             insight_lines = []
             if percentile < 90:
@@ -119,7 +146,7 @@ with tab1:
                 <div style="background-color: #1f2937; padding:20px; border-radius:10px; margin-top:20px;">
                     <h4 style="color:#ffffff;"> Based on your information:</h4>
                     <p style="color:white; font-size:15px; margin-bottom: 10px;">
-                        You are in the <strong style="color:#60a5fa;">{display_pct} percentile</strong> of the Stepcount SSL distribution.
+                        You are in the <strong style="color:#60a5fa;">{display_pct} percentile</strong> of the {algo} distribution.
                     </p>
                     {ul_block}
                 </div>
@@ -179,17 +206,17 @@ with tab1:
                     </div>
                 """
                 st.markdown(baseline_percentile_message, unsafe_allow_html=True)
+
     with right_col:
         st.markdown(
             f"<div style='text-align: center; font-size: 24px; font-weight: bold; margin-top: 4px; color: white;'>"
-            f"Step Count Distribution: {gender} (Age {age_range})"
+            f"Step Count Distribution: {algo} ({gender}, Age {age_range})"
             f"</div>",
             unsafe_allow_html=True,
-            help="Distribution based on the Stepcount SSL model, which demonstrated the best accuracy in our validation study."
+            help="Distribution based on the selected algorithm."
         )
 
-        def plot_single_algo_kde(data, gender, age_range, user_step_count=None, percentile_value=None, show_baseline=False):
-            algo = "Stepcount SSL"
+        def plot_single_algo_kde(data, algo, gender, age_range, user_step_count=None, percentile_value=None, show_baseline=False):
             subset = data[data['name'] == algo]
             subset_age = subset[subset['age_cat_display'] == age_range]
             if subset_age.empty:
@@ -276,7 +303,10 @@ with tab1:
                         ))
 
             # User step count marker, now as tall as the baseline (if present), else as tall as main curve
-            marker_height = baseline_max_y if baseline_max_y is not None else max(y_range)
+            if baseline_max_y is not None:
+                marker_height = max(baseline_max_y, max(y_range))
+            else:
+                marker_height = max(y_range)
             if user_step_count is not None:
                 qt = sub[sub['value'] <= user_step_count]['q'].max() * 100
                 label = f"{qt:.2f}%" if qt < 100 else "99+%"
@@ -312,18 +342,79 @@ with tab1:
 
         plot_single_algo_kde(
             data,
+            algo,
             gender,
             age_range,
             user_step_count=user_step_count,
             percentile_value=percentile,
             show_baseline=show_baseline
         )
+
+        # ------- SURVIVAL PROBABILITY IMPROVEMENT PANEL BELOW GRAPH -------
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+        st.markdown("<hr style='border-top: 1px solid #2d3748; margin:16px 0 16px 0;' />", unsafe_allow_html=True)
+        st.markdown(
+            "<div style='font-size:20px; color:white; font-weight:bold; margin-bottom:12px;'>Estimated Survival Improvement</div>",
+            unsafe_allow_html=True
+        )
+        def age_range_to_bracket(age_range):
+            """Convert '50-59' to '[50,60)' for DataFrame filtering."""
+            start, end = age_range.split('-')
+            return f"[{start},{int(end)+1})"
+        def get_survival_improvement(surv, algo, gender, age_range, user_steps):
+            # Round to nearest 10 as per dataset
+            step10 = int(10 * round(user_steps / 10))
+            bracket = age_range_to_bracket(age_range)
+            demo_query = (
+                (surv['name'] == algo) &
+                (surv['age'] == bracket)
+            )
+            if gender != "Overall":
+                demo_query &= (surv['sex'] == gender)
+            # Get row for current step
+            row = surv[demo_query & (surv['steps'] == step10)]
+            if row.empty:
+                return None, step10
+            try:
+                survprob = float(row['pct_chg_survival'].iloc[0])
+            except Exception:
+                return None, step10
+            return survprob, step10
+
+        print(age_range)
+        survprob, step10 = get_survival_improvement(
+            surv, algo, gender, age_range, user_step_count
+        )
+        print(f"Survival prob: {survprob}, Step10: {step10}")
+        if survprob is not None:
+            st.markdown(
+                f"""
+                <div style="background-color:#1f2937; padding:18px 28px; border-radius:10px;">
+                    <span style="font-size:16px; color:#d1d5db;">
+                        <strong>Estimated improvement in survival probability for a 500-step increase:</strong> 
+                        <span style="color:#4ade80; font-size:20px; font-weight:700;">{survprob*100:.2f}%</span>
+                        <br>
+                        (From {step10:,} steps, using <b>{algo}</b>)
+                    </span>
+                </div>
+                """, unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                f"""
+                <div style="background-color:#1f2937; padding:18px 28px; border-radius:10px;">
+                    <span style="font-size:16px; color:#f472b6;">
+                        Survival improvement estimate is not available for your selection (step count range or demographic may be out of bounds).
+                    </span>
+                </div>
+                """, unsafe_allow_html=True
+            )
     st.divider()
 
 
 with tab2:
-    algo_options = sorted(data['name'].unique())
-    default_algos = ["Stepcount RF", "Stepcount SSL"] if all(a in algo_options for a in ["Stepcount RF", "Stepcount SSL"]) else algo_options[:2]
+    algo_options_all = sorted(data['name'].unique())
+    default_algos = ["Stepcount RF", "Stepcount SSL"] if all(a in algo_options_all for a in ["Stepcount RF", "Stepcount SSL"]) else algo_options_all[:2]
 
     st.subheader("Algorithm Comparison", help="Compare step count distributions across different machine learning algorithms.")
     left_col, right_col = st.columns([2, 2.8], gap="large")
@@ -331,7 +422,7 @@ with tab2:
     with left_col:
         selected_algos = st.multiselect(
             "Algorithms to Compare",
-            options=[a for a in algo_options if a != "Best guess"],
+            options=[a for a in algo_options_all if a != "Best guess"],
             default=default_algos,
             help="Overlay step count distributions for multiple algorithms."
         )
@@ -394,6 +485,7 @@ with tab2:
                 f"</ul></div>"
             )
             st.markdown(percentiles_block, unsafe_allow_html=True)
+        st.info("Survival probability improvements for each algorithm are shown in the Step Count Distribution tab.")
 
     with right_col:
         st.markdown("#### Compare with Step-Detection Algorithms")
@@ -540,7 +632,7 @@ with tab3:
     st.info(
         """
         Step count estimates were obtained by applying a machine-learning based 
-        [step-count algorithm](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx) to raw accelerometry data from the National Health and Nutrition Examination Survey (NHANES).
+        [step-count algorithm](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx) to raw accelerometry data from the National Health and Nutrition Examination Survey (NHANES) 2003–2006 cycles.
         - **Step count algorithm: [OxWearables/stepcount (GitHub)](https://github.com/OxWearables/stepcount)**
         - **Our analysis code: [lilykoff/nhanes_steps_mortality (GitHub)](https://github.com/lilykoff/nhanes_steps_mortality)**
         - **Minute-level step count data: [PhysioNet NHANES Dataset](https://physionet.org/content/minute-level-step-count-nhanes/1.0.1/)**
