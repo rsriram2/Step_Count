@@ -47,7 +47,7 @@ This tool helps researchers and public health practitioners explore activity pat
 
 ## Demo
 
-*View the live app:* (Deployment link coming soon)
+*View the live app:* https://stepcount-7kh4v28xvprobjpp9kxyzz.streamlit.app/?embed_options=dark_theme
 
 ---
 
