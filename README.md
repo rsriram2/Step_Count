@@ -142,16 +142,11 @@ All methodological details—data description, preprocessing steps, statistical 
 
 ## About Us
 
-Rushil Srirambhatla: B.S. Applied Mathematics & Statistics at Johns Hopkins University
+- Rushil Srirambhatla: B.S. Applied Mathematics & Statistics at Johns Hopkins University
+- John Muschelli: Associate Research Professor at Johns Hopkins Bloomberg School of Public Health
+- Lily Koffman: Biostatistics PhD Candidate at Johns Hopkins Bloomberg School of Public Health
+- Ciprian Crainiceanu: Professor of Biostatistics at Johns Hopkins Bloomberg School of Public Health
 
-
-John Muschelli: Associate Research Professor at Johns Hopkins Bloomberg School of Public Health
-
-
-Lily Koffman: Biostatistics PhD Candidate at Johns Hopkins Bloomberg School of Public Health
-
-
-Ciprian Crainiceanu: Professor of Biostatistics at Johns Hopkins Bloomberg School of Public Health
 ---
 
 ## Contact
