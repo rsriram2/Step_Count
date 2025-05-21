@@ -142,12 +142,16 @@ All methodological details—data description, preprocessing steps, statistical 
 
 ## About Us
 
-Meet the team behind this project. Visit the **About Us** tab for:
+Rushil Srirambhatla: B.S. Applied Mathematics & Statistics at Johns Hopkins University
 
-- **Names & Roles**
-- **Short Bios**
-- **Links:** Personal websites, LinkedIn, GitHub profiles
 
+John Muschelli: Associate Research Professor at Johns Hopkins Bloomberg School of Public Health
+
+
+Lily Koffman: Biostatistics PhD Candidate at Johns Hopkins Bloomberg School of Public Health
+
+
+Ciprian Crainiceanu: Professor of Biostatistics at Johns Hopkins Bloomberg School of Public Health
 ---
 
 ## Contact
