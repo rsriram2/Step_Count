@@ -403,7 +403,7 @@ with tab1:
                     <div style="background-color:#1f2937; padding:18px 28px; border-radius:10px;">
                         <span style="font-size:16px; color:white;">
                             <strong>Estimated improvement in survival probability for a 500-step increase:</strong> 
-                            <span style="color:#00c04b; font-size:20px; font-weight:700;">{survprob*100:.2f}%</span>
+                            <span style="color:#00c04b; font-size:20px; font-weight:700;">{survprob:.2f}%</span>
                             <br>
                             (From {step10:,} steps, using <b>{algo}</b>)
                         </span>
