@@ -36,12 +36,11 @@ st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4 = st.tabs(["Step Count Distribution", "Algorithm Comparison", "Methods", "About Us"])
 
-# --- COMMON DATA LOAD ---
 csvfile = 'utils/steps_all_algorithms.csv.gz'
 data = pd.read_csv(csvfile, compression='gzip')
 
 # Load survival improvement data (increments of 10)
-survival_csv = 'utils/steps_survival_all_algorithms_inc10.csv.gz'
+survival_csv = 'utils/steps_survival_all_algorithms_inc10_all.csv.gz'
 surv = pd.read_csv(survival_csv, compression='gzip')
 
 # Reformat age category
@@ -108,12 +107,10 @@ with tab1:
         def mark_changed():
             st.session_state.step_changed = True
         
-        max_step_count = int(np.ceil(subset['value'].max() / 1000.0) * 1000) if not subset.empty else 30000
-
         user_step_count = st.slider(
             "Average Steps Per Day",
             min_value=0,
-            max_value=max_step_count,
+            max_value=30000,
             step=500,
             key="user_step_count",
             on_change=mark_changed
@@ -355,18 +352,14 @@ with tab1:
 
         # --- Should we show the survival panel? ---
         show_survival_panel = True
-        if gender == "Overall":
-            show_survival_panel = False
-        else:
-            try:
-                age_low = int(age_range.split("-")[0])
-                if age_low < 50:
-                    show_survival_panel = False
-            except Exception:
+        try:
+            age_low = int(age_range.split("-")[0])
+            if age_low < 50:
                 show_survival_panel = False
+        except:
+            show_survival_panel = False
 
         def age_range_to_bracket(age_range):
-            """Convert '50-59' to '[50,60)' for DataFrame filtering."""
             start, end = age_range.split('-')
             return f"[{start},{int(end)+1})"
 
@@ -376,18 +369,13 @@ with tab1:
             bracket = age_range_to_bracket(age_range)
             demo_query = (
                 (surv['name'] == algo) &
-                (surv['age'] == bracket)
+                (surv['age'] == bracket) &
+                (surv['sex'] == gender)
             )
-            if gender != "Overall":
-                demo_query &= (surv['sex'] == gender)
-            # Get row for current step
             row = surv[demo_query & (surv['steps'] == step10)]
             if row.empty:
                 return None, step10
-            try:
-                survprob = float(row['pct_chg_survival'].iloc[0])
-            except Exception:
-                return None, step10
+            survprob = float(row['pct_chg_survival'].iloc[0])
             return survprob, step10
 
         if show_survival_panel:
@@ -417,8 +405,8 @@ with tab1:
                 st.markdown(
                     f"""
                     <div style="background-color:#1f2937; padding:18px 28px; border-radius:10px;">
-                        <span style="font-size:16px; color:#f472b6;">
-                            Survival improvement estimate is not available for your selection (step count range or demographic may be out of bounds).
+                        <span style="font-size:16px; color:#60a5fa;">
+                            Survival improvement estimates are available for individuals aged 50 to under 80.
                         </span>
                     </div>
                     """, unsafe_allow_html=True
@@ -426,7 +414,7 @@ with tab1:
         else:
             st.markdown(
                 "<div style='color:#60a5fa; background-color:#1f2937; padding:18px 28px; border-radius:10px; margin-top: 16px;'>"
-                "<strong>Survival improvement estimates are available for Males and Females aged 50 and above.</strong>"
+                "<strong>Survival improvement estimates are available for individuals aged 50 to under 80.</strong>"
                 "</div>",
                 unsafe_allow_html=True
             )
