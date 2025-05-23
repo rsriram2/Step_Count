@@ -107,10 +107,13 @@ with tab1:
 
         def mark_changed():
             st.session_state.step_changed = True
+        
+        max_step_count = int(np.ceil(subset['value'].max() / 1000.0) * 1000) if not subset.empty else 30000
 
-        user_step_count = st.number_input(
-            "Step Count",
+        user_step_count = st.slider(
+            "Average Steps Per Day",
             min_value=0,
+            max_value=max_step_count,
             step=500,
             key="user_step_count",
             on_change=mark_changed
@@ -119,7 +122,7 @@ with tab1:
         quantile = subset[subset['value'] <= user_step_count]['q'].max()
         if pd.isna(quantile):
             percentile = None
-            st.write(f"### Your step count is below the threshold for this demographic ({algo}).")
+            st.write(f"### Your step count is below the threshold for this demographic.")
             steps_to_90th = steps_to_95th = steps_to_99th = None
         else:
             percentile = round(quantile * 100, 2)
@@ -651,7 +654,7 @@ with tab3:
     st.info(
         """
         Step count estimates were obtained by applying a machine-learning based 
-        [step-count algorithm](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx) to raw accelerometry data from the National Health and Nutrition Examination Survey (NHANES) 2003–2006 cycles.
+        [step-count algorithm](https://journals.lww.com/acsm-msse/fulltext/2024/10000/self_supervised_machine_learning_to_characterize.9.aspx) to raw accelerometry data from the National Health and Nutrition Examination Survey (NHANES) 2011–2014 cycles. See more details on the methodology [here](https://pubmed.ncbi.nlm.nih.gov/39589008/).
         - **Step count algorithm: [OxWearables/stepcount (GitHub)](https://github.com/OxWearables/stepcount)**
         - **Our analysis code: [lilykoff/nhanes_steps_mortality (GitHub)](https://github.com/lilykoff/nhanes_steps_mortality)**
         - **Minute-level step count data: [PhysioNet NHANES Dataset](https://physionet.org/content/minute-level-step-count-nhanes/1.0.1/)**
@@ -659,18 +662,6 @@ with tab3:
     )
 
     st.divider()
-    pdf_path = "https://drive.google.com/file/d/1V-rkGjpVFvfDMoVWhiwkAj_RywtHh_28/preview"
-    pdf_display = f"""
-        <div style="display: flex; justify-content: center;">
-            <iframe
-                src="{pdf_path}"
-                width="50%"
-                height="900px"
-                style="border: none; border-radius: 12px; background: #222;"
-            ></iframe>
-        </div>
-    """
-    st.markdown(pdf_display, unsafe_allow_html=True)     
 
 # --- TAB 4: About Us ---
 def img_to_b64(path: str) -> str:
@@ -732,10 +723,10 @@ with tab4:
     b64_3 = img_to_b64("utils/LK_Headshot.JPG")
     b64_4 = img_to_b64("utils/ciprian_headshot.jpg")
 
-    st.markdown(
-        '<h2 style="text-align:center; color:white; margin-bottom:1rem; padding-left:27px;">Meet the Team</h2>',
-        unsafe_allow_html=True
-    )
+    # st.markdown(
+    #     '<h2 style="text-align:center; color:white; margin-bottom:1rem; padding-left:27px;">Meet the Team</h2>',
+    #     unsafe_allow_html=True
+    # )
 
     team_cards = f"""
     <div style="display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; margin-top: 2rem;">
