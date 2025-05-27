@@ -111,7 +111,7 @@ with tab1:
             "Average Steps Per Day",
             min_value=0,
             max_value=30000,
-            step=500,
+            step=1,
             key="user_step_count",
             on_change=mark_changed
         )
