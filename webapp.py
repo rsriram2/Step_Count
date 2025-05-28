@@ -156,7 +156,7 @@ with tab1:
 
         # Add toggle for Baseline
         show_baseline = st.checkbox(
-            "Show Baseline Distribution",
+            "Show Heuristic Reference Distribution",
             value=False,
             help="Overlay a common-sense average step count curve based on published norms."
         )
@@ -200,7 +200,7 @@ with tab1:
                 baseline_percentile_message = f"""
                     <div style="background-color: #1f2937; padding:20px; border-radius:10px; margin-top:-20px;">
                         <p style="color:#93c5fd; font-size:16px; margin-bottom: 0px;">
-                            You are in the <strong style="color:white;">{display_baseline_pct} percentile</strong> of the Baseline distribution.
+                            You are in the <strong style="color:white;">{display_baseline_pct} percentile</strong> of the Heuristic Reference Distribution.
                         </p>
                         {baseline_ul_block}
                     </div>
@@ -441,7 +441,7 @@ with tab2:
 
         # Toggle for Baseline
         show_baseline_tab2 = st.checkbox(
-            "Show Baseline Distribution", value=False,
+            "Show Heuristic Reference Distribution", value=False,
             help="Overlay a common-sense average step count curve based on published norms and expert judgment.",
             key="comp_baseline",
         )
