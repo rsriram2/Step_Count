@@ -309,13 +309,13 @@ with tab1:
                 marker_height = max(y_range)
             if user_step_count is not None:
                 qt = sub[sub['value'] <= user_step_count]['q'].max() * 100
-                label = f"{qt:.2f}%" if qt < 100 else "99+%"
+                label = f"{qt:.2f}th" if qt < 100 else "99+%"
                 fig.add_trace(go.Scatter(
                     x=[user_step_count, user_step_count],
                     y=[0, marker_height],
                     mode='lines',
                     line=dict(color='crimson', dash='dash', width=3),
-                    name=f"Your Step Count ({label})",
+                    name=f"Your Percentile: {label}",
                     hovertemplate="Step Count: %{x}<br>Percentile: "+label+"<extra></extra>"
                 ))
 
