@@ -118,6 +118,7 @@ with tab1:
         )
         
         st.session_state["user_step_count"] = user_step_count_tab1
+        user_step_count = user_step_count_tab1
 
 
         quantile = subset[subset['value'] <= user_step_count]['q'].max()
@@ -451,6 +452,7 @@ with tab2:
             value=st.session_state["user_step_count"]
         )
         st.session_state["user_step_count"] = user_step_count_tab2
+        user_step_count = user_step_count_tab2
 
         
         # Toggle for Baseline
