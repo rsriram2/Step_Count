@@ -107,14 +107,18 @@ with tab1:
         def mark_changed():
             st.session_state.step_changed = True
         
-        user_step_count = st.slider(
+        user_step_count_tab1 = st.slider(
             "Average Steps Per Day",
             min_value=0,
             max_value=30000,
             step=100,
-            key="user_step_count",
-            on_change=mark_changed
+            key="user_step_count_tab1",
+            on_change=mark_changed,
+            value=st.session_state["user_step_count"]
         )
+        
+        st.session_state["user_step_count"] = user_step_count_tab1
+
 
         quantile = subset[subset['value'] <= user_step_count]['q'].max()
         if pd.isna(quantile):
@@ -436,9 +440,19 @@ with tab2:
             help="Overlay step count distributions for multiple algorithms."
         )
         gender = st.selectbox("Gender", ["Overall", "Male", "Female"], key="comp_gender")
-        age_range = st.selectbox("Age Range", options=age_ranges_display, index=age_ranges_display.index(default_age_group), key="comp_age")
-        user_step_count = st.number_input("Step Count", value=9000, min_value=0, step=500, key="comp_user_step_count")
+        age_range = st.selectbox("Age Range", options=age_ranges_display, index=age_ranges_display.index(default_age_group), key="comp_age")        
+        
+        user_step_count_tab2 = st.slider(
+            "Average Steps Per Day",
+            min_value=0,
+            max_value=30000,
+            step=100,
+            key="user_step_count_tab2",
+            value=st.session_state["user_step_count"]
+        )
+        st.session_state["user_step_count"] = user_step_count_tab2
 
+        
         # Toggle for Baseline
         show_baseline_tab2 = st.checkbox(
             "Show Heuristic Reference Distribution", value=False,
